@@ -24,46 +24,44 @@ app.use(function validateBearerToken(req, res, next) {
   next();
 });
 
+const validTypes = ['genre', 'country', 'avg_vote'];
 
-const validTypes = [
-  'genre',
-  'country',
-  'avg_vote',
-];
+app.get('/movies', filterBy);
 
-app.get('/movies', sortBy);
-
-function sortBy(req, res) {
+function filterBy(req, res) {
   const { genre, country, avg_vote } = req.query;
+  let movieList = moviedex;
   if (genre) {
-    sortByGenre(res, genre);
-  } else if (country) {
-    sortByCountry(res, country);
-  } else if (avg_vote) {
-    sortByAvgVote(res, avg_vote);
-  } else {
-    res.json(moviedex);
+    movieList = filterByGenre(movieList, genre);
   }
+  if (country) {
+    movieList = filterByCountry(movieList, country);
+  }
+  if (avg_vote) {
+    movieList = filterByAvgVote(movieList, avg_vote);
+  }
+  res.json(movieList);
 }
 
-
-function sortByGenre(res, genre) {
-  let filteredList = moviedex.filter(movie =>
-    movie.genre.toLowerCase().includes(genre.toLowerCase()));
-  res.json(filteredList);
+function filterByGenre(movieList, genre) {
+  let filteredList = movieList.filter(movie =>
+    movie.genre.toLowerCase().includes(genre.toLowerCase())
+  );
+  return filteredList;
 }
-function sortByCountry(res, country) {
-  let filteredList = moviedex.filter(movie =>
-    movie.country.toLowerCase().includes(country.toLowerCase()));
-  res.json(filteredList);
-}
-function sortByAvgVote(res, avg_vote) {
-  let filteredList = moviedex.filter(movie =>
-    Number(movie.avg_vote) >= Number(avg_vote));
-  res.json(filteredList);
-}
+function filterByCountry(movieList, country) {
+  let filteredList = movieList.filter(movie =>
+    movie.country.toLowerCase().includes(country.toLowerCase())
+  );
 
-
+  return filteredList;
+}
+function filterByAvgVote(movieList, avg_vote) {
+  let filteredList = movieList.filter(
+    movie => Number(movie.avg_vote) >= Number(avg_vote)
+  );
+  return filteredList;
+}
 
 const PORT = 8080;
 
